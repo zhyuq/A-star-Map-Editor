@@ -1,0 +1,356 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, minimum-scale=0.1">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>Grid</title>
+<style type="text/css">
+.btnNormal {
+  line-height:25px;
+  height:25px;
+  width:25px;
+  color:#777777;
+  background-color:#f4f1eb;
+  font-size:16px;
+  font-weight:normal;
+  font-family:Arial;
+  border:1px solid #f00505;
+  -webkit-border-top-left-radius:0px;
+  -moz-border-radius-topleft:0px;
+  border-top-left-radius:0px;
+  -webkit-border-top-right-radius:0px;
+  -moz-border-radius-topright:0px;
+  border-top-right-radius:0px;
+  -webkit-border-bottom-left-radius:0px;
+  -moz-border-radius-bottomleft:0px;
+  border-bottom-left-radius:0px;
+  -webkit-border-bottom-right-radius:0px;
+  -moz-border-radius-bottomright:0px;
+  border-bottom-right-radius:0px;
+  -moz-box-shadow: inset 0px 0px 0px 0px #ffffff;
+  -webkit-box-shadow: inset 0px 0px 0px 0px #ffffff;
+  box-shadow: inset 0px 0px 0px 0px #ffffff;
+  text-align:center;
+  display:inline-block;
+  text-decoration:none;
+  opacity: 0.2;
+  filter: alpha(opacity=0.2);
+}
+
+.btnSelected {
+  line-height:25px;
+  height:25px;
+  width:25px;
+  color:#777777;
+  background-color:#f0af22;
+  font-size:16px;
+  font-weight:normal;
+  font-family:Arial;
+  border:1px solid #f00505;
+  -webkit-border-top-left-radius:0px;
+  -moz-border-radius-topleft:0px;
+  border-top-left-radius:0px;
+  -webkit-border-top-right-radius:0px;
+  -moz-border-radius-topright:0px;
+  border-top-right-radius:0px;
+  -webkit-border-bottom-left-radius:0px;
+  -moz-border-radius-bottomleft:0px;
+  border-bottom-left-radius:0px;
+  -webkit-border-bottom-right-radius:0px;
+  -moz-border-radius-bottomright:0px;
+  border-bottom-right-radius:0px;
+  -moz-box-shadow: inset 0px 0px 0px 0px #ffffff;
+  -webkit-box-shadow: inset 0px 0px 0px 0px #ffffff;
+  box-shadow: inset 0px 0px 0px 0px #ffffff;
+  text-align:center;
+  display:inline-block;
+  text-decoration:none;
+  opacity: 0.2;
+  filter: alpha(opacity=0.2);
+}
+
+.btnNormal:hover{
+  background-color:#a136a5;
+}
+
+.btnSelected:hover{
+  background-color:#a136a5;
+}
+
+</style>
+<script>
+
+
+function keyup(e) {
+  var currKey = 0;
+  e = e || event;
+  currKey=e.keyCode||e.which||e.charCode;//支持IE、FF
+  if (currKey == 32) { //空格键
+     eventChangeMode();
+
+     e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+  }
+}
+document.onkeyup = keyup;
+
+function handleFiles(files) {
+  var preview = document.getElementById('preview');
+  for (var i = 0; i < files.length; i++) {
+    var file = files[i];
+    var imageType = /^image\//;
+
+    if ( !imageType.test(file.type) ) {
+      continue;
+    }
+
+    var img = document.createElement("img");
+    img.style.position = "absolute";
+    img.style.left = "0px";
+    img.style.top = "0px";
+    img.file = file;
+    // 假设 "preview" 是将要展示图片的 div
+    preview.appendChild(img);
+
+    var reader = new FileReader();
+    reader.onload = (function(aImg) {
+      return function(e) {
+        aImg.src = e.target.result;
+      };
+    })(img);
+    reader.readAsDataURL(file);
+  }
+}
+
+function gridClick(e) {
+  if (mode != "click") {
+    return
+  }
+
+  e = e || event;
+  var target = e.target;
+  if (target["selected"] == 1) {
+    target["selected"] = 0;
+    target.className = "btnNormal";
+  } else {
+    target["selected"] = 1;
+    target.className = "btnSelected";
+  }
+}
+
+function eventMouseOver(e) {
+  if (mode != "over") {
+    return
+  }
+
+  e = e || event;
+  var target = e.target;
+  if (target["selected"] == 1) {
+    target["selected"] = 0;
+    target.className = "btnNormal";
+  } else {
+    target["selected"] = 1;
+    target.className = "btnSelected";
+  }
+}
+
+function createGrid() {
+    var preview = document.getElementById('content');
+    for (var j = 0; j < 26; j++) {
+      for (var i = 0; i < 100; i++) {
+          var btn = document.createElement("button");
+          btn.onclick = gridClick;
+          btn.onmouseover = eventMouseOver;
+          btn["selected"] = 0;
+          btn["x"] = i;
+          btn["y"] = j;
+          btn.id = j * 100 + i;
+          btn.setAttribute("class", "btnNormal");
+          btn.style.position = "absolute";
+          btn.style.top = j*25 + "px";
+          btn.style.left = i*25 + "px";
+          preview.appendChild(btn);
+      }
+    }
+}
+
+function add() {
+  createGrid();
+}
+
+function remove() {
+  var elements = document.getElementsByClassName("btnNormal");
+  var length = elements.length;
+  for(var i=length-1; i >= 0 ; i--) {
+      elements[i].parentNode.removeChild(elements[i])
+  }
+
+  var elements = document.getElementsByClassName("btnSelected");
+  var length = elements.length;
+  for(var i=length-1; i >= 0 ; i--) {
+      elements[i].parentNode.removeChild(elements[i])
+  }
+}
+
+function save() {
+    var arr = new Array;
+    for (var j = 0; j < 26; j++) {
+        var row = "";
+        for (var i = 0; i < 100; i++) {
+          var id = j * 100 + i;
+          var btn = document.getElementById(id.toString());
+          if (btn["selected"] == 1){
+            row = row + "1";
+          } else {
+            row = row + "0";
+          }
+      }
+
+      arr.push(row);
+    }
+
+    console.log(arr.toString());
+    var text = createXML(arr.toString());
+    saveAs(NewBlob(text, "text/plain;charset=utf-8"), 'hello.xml');
+}
+
+var NewBlob = function(data, datatype) {
+    var out;
+
+    try {
+        out = new Blob([data], {type: datatype});
+        // console.debug("case 1");
+    }
+    catch (e) {
+        window.BlobBuilder = window.BlobBuilder ||
+                window.WebKitBlobBuilder ||
+                window.MozBlobBuilder ||
+                window.MSBlobBuilder;
+
+        if (e.name == 'TypeError' && window.BlobBuilder) {
+            var bb = new BlobBuilder();
+            bb.append(data);
+            out = bb.getBlob(datatype);
+            // console.debug("case 2");
+        }
+        else if (e.name == "InvalidStateError") {
+            // InvalidStateError (tested on FF13 WinXP)
+            out = new Blob([data], {type: datatype});
+            // console.debug("case 3");
+        }
+        else {
+            // We're screwed, blob constructor unsupported entirely
+            // console.debug("Errore");
+        }
+    }
+    return out;
+}
+
+var URL = URL || webkitURL || window;
+
+function saveAs(blob, filename) {
+    var type = blob.type;
+    var force_saveable_type = 'application/octet-stream';
+    if (type && type != force_saveable_type) { // 强制下载，而非在浏览器中打开
+        var slice = blob.slice || blob.webkitSlice || blob.mozSlice;
+        blob = slice.call(blob, 0, blob.size, force_saveable_type);
+    }
+
+    var url = URL.createObjectURL(blob);
+    var save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
+    save_link.href = url;
+    save_link.download = filename;
+
+    var event = document.createEvent('MouseEvents');
+    event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+    save_link.dispatchEvent(event);
+    URL.revokeObjectURL(url);
+}
+
+// var bb = new BlobBuilder;
+// bb.append('Hello, world!');
+// saveAs(bb.getBlob('text/plain;charset=utf-8'), 'hello world.txt');
+
+var mode = "click";
+function eventChangeMode() {
+  if (mode == "click") {
+    mode = "over";
+  } else {
+    mode = "click";
+  }
+
+}
+
+</script>
+
+<script type="text/javascript">
+
+  //xml操作
+  function createXMLDOM() {
+    var xmlDOM;
+    if (window.ActiveXObject) {
+        xmlDOM = new ActiveXObject('Microsoft.XMLDOM');
+    } else if (document.implementation
+            && document.implementation.createDocument) {
+        xmlDOM = document.implementation.createDocument('', '', null);
+    } else {
+        alert('您的浏览器不支持文档对象XMLDOM');
+        return;
+    }
+    return xmlDOM;
+}
+
+function parserXMLToString(xmlDOM) {
+    if (window.ActiveXObject) {
+        return xmlDOM.xml;
+    } else if (document.implementation
+            && document.implementation.createDocument) {
+        return new XMLSerializer().serializeToString(xmlDOM);
+    }
+}
+
+/**
+ * 创建XML 文件例子:
+ * <graph>
+ *     <set name='1' value='1'></set>
+ *     <set name='2' value='2'></set>
+ * </graph>
+ */
+function createXML(pathData) {
+    var xmlDOM = createXMLDOM();
+    if (xmlDOM) {
+        var data = xmlDOM.createElement('MapData');
+        xmlDOM.appendChild(data);
+
+        newEle = xmlDOM.createElement("x");
+        newText = xmlDOM.createTextNode("100");
+        newEle.appendChild(newText);
+        data.appendChild(newEle);
+
+        newEle = xmlDOM.createElement("y");
+        newText = xmlDOM.createTextNode("26");
+        newEle.appendChild(newText);
+        data.appendChild(newEle);
+
+        newEle = xmlDOM.createElement("path");
+        newText = xmlDOM.createTextNode(pathData);
+        newEle.appendChild(newText);
+        data.appendChild(newEle);
+
+        return parserXMLToString(xmlDOM);
+    }
+    return;
+}
+</script>
+</head>
+<body style="margin: 25px;">
+<input type="file" id="input" onchange="handleFiles(this.files)">
+<button type="button"  tabindex="-1" onclick="add()">add Grid</button>
+<button type="button" tabindex="-1" onclick="remove()">remove Grid</button>
+<button type="button" tabindex="-1" onclick="save()">save Grid</button>
+<button type="button" tabindex="-1" onclick="eventChangeMode()">change Mode</button>
+<hr>
+<div style="position:absolute;" >
+<div id = "preview" style="position:absolute; left:0px; top:0px;"></div>
+<div id = "content" style="position:absolute; left:0px; top:0px;"></div>
+</div>
+</body>
+</html>
